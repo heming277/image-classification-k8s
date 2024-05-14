@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: image-classification
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: image-classification
+  template:
+    metadata:
+      labels:
+        app: image-classification
+    spec:
+      containers:
+      - name: image-classification
+        image: gcr.io/image-classification-k8s/image-classification:latest
+        ports:
+        - containerPort: 8000

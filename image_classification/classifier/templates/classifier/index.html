@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Image Classification with CIFAR-10</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="bg-white shadow-lg rounded-lg p-8 max-w-md w-full">
+        <h1 class="text-3xl font-bold mb-6 text-center">Upload an Image for Classification</h1>
+        <form id="uploadForm" action="/predict/" method="post" enctype="multipart/form-data" class="space-y-4">
+            {% csrf_token %}
+            <input type="file" name="file" accept="image/*" class="block w-full text-sm text-gray-500
+            file:mr-4 file:py-2 file:px-4
+            file:rounded-full file:border-0
+            file:text-sm file:font-semibold
+            file:bg-blue-50 file:text-blue-700
+            hover:file:bg-blue-100" required>
+            <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg">Upload and Classify</button>
+        </form>
+        <div id="result" class="mt-6 text-center text-lg text-gray-700"></div>
+        <div id="imageContainer" class="mt-6 text-center">
+            <img id="uploadedImage" class="mx-auto rounded-lg shadow-lg" style="display: none; max-width: 300px; max-height: 300px;" />
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('uploadForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const fileInput = e.target.querySelector('input[type="file"]');
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+
+            reader.onload = (event) => {
+                const imgElement = document.getElementById('uploadedImage');
+                imgElement.src = event.target.result;
+                imgElement.style.display = 'block';
+            };
+
+            reader.readAsDataURL(file);
+
+            const response = await fetch('/predict/', {
+                method: 'POST',
+                body: formData
+            });
+            const result = await response.json();
+            document.getElementById('result').innerHTML = `<span class="font-bold text-gray-900">Predicted Class:</span> ${result.class}`;
+        };
+    </script>
+</body>
+</html>
